@@ -66,11 +66,11 @@ For each dataset, we generated three key visualizations:
    
    - **Visualizations**:
      - Dataset 3 Packet Size Distribution:  
-       ![Packet Size Distribution - Dataset 3](C:/Users/hailey/botnet-detection-ml-techniques/src/phase2/results/3/20110812-rbot_packet_size_distribution.png)
+       ![Packet Size Distribution - Dataset 3](results/3/20110812-rbot_packet_size_distribution.png)
      - Dataset 4 Packet Size Distribution:  
-       ![Packet Size Distribution - Dataset 4](C:/Users/hailey/botnet-detection-ml-techniques/src/phase2/results/4/20110815-rbot-dos_packet_size_distribution.png)
+       ![Packet Size Distribution - Dataset 4](results/4/20110815-rbot-dos_packet_size_distribution.png)
      - Dataset 1 Packet Size Distribution:  
-       ![Packet Size Distribution - Dataset 1](C:/Users/hailey/botnet-detection-ml-techniques/src/phase2/results/1/20110810-neris_packet_size_distribution.png)
+       ![Packet Size Distribution - Dataset 1](results/1/20110810-neris_packet_size_distribution.png)
 
 2. **Communication Frequency**
    - **Purpose**: This graph displays the frequency of communication between bot IPs and the C2 server, identifying which IPs communicate most often with the C2.
@@ -79,9 +79,9 @@ For each dataset, we generated three key visualizations:
    
    - **Visualizations**:
      - Dataset 9 Communication Frequency:  
-       ![Communication Frequency - Dataset 9](C:/Users/hailey/botnet-detection-ml-techniques/src/phase2/results/9/20110817-bot_communication_frequency.png)
+       ![Communication Frequency - Dataset 9](results/9/20110817-bot_communication_frequency.png)
      - Dataset 8 Communication Frequency:  
-       ![Communication Frequency - Dataset 8](C:/Users/hailey/botnet-detection-ml-techniques/src/phase2/results/8/20110816-qvod_communication_frequency.png)
+       ![Communication Frequency - Dataset 8](results/8/20110816-qvod_communication_frequency.png)
 
 3. **Traffic Volume Over Time**
    - **Purpose**: This visualization shows traffic volume (packets) over time, highlighting periods of high botnet activity.
@@ -90,9 +90,9 @@ For each dataset, we generated three key visualizations:
    
    - **Visualizations**:
      - Dataset 12 Traffic Volume Over Time:  
-       ![Traffic Volume Over Time - Dataset 12](C:/Users/hailey/botnet-detection-ml-techniques/src/phase2/results/12/20110819-bot_traffic_volume_over_time.png)
+       ![Traffic Volume Over Time - Dataset 12](results/12/20110819-bot_traffic_volume_over_time.png)
      - Dataset 6 Traffic Volume Over Time:  
-       ![Traffic Volume Over Time - Dataset 6](C:/Users/hailey/botnet-detection-ml-techniques/src/phase2/results/6/20110816-donbot_traffic_volume_over_time.png)
+       ![Traffic Volume Over Time - Dataset 6](results/6/20110816-donbot_traffic_volume_over_time.png)
 
 ---
 
