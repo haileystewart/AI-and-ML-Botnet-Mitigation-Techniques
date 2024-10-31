@@ -1,0 +1,2 @@
+timestamp,src_ip,dst_ip,protocol,packet_size,time_interval,is_botnet,request_count
+2024-10-08 15:23:24,192.168.1.12,192.168.1.100,tcp,79.0,0.0,True,

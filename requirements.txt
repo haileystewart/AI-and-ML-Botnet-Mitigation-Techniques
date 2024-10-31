@@ -1,0 +1,7 @@
+scapy
+numpy
+pandas
+matplotlib
+scikit-learn
+jupyterlab
+xgboost #maybe we won't use idk
