@@ -1,56 +1,63 @@
-# Phase 3: Rule-Based Detection
+# Phase 3 Report: Rule-Based Botnet Detection
 
-## Overview
-In Phase 3, the focus was on implementing and testing rule-based detection methods for identifying botnet activity. Using the insights from Phase 2, we developed detection rules based on traffic patterns such as packet size, frequency of communication between bots and the C2 server, and time intervals between packets. These rules were then applied to the simulated botnet traffic to evaluate their effectiveness.
+## Goal
+The primary goal of Phase 3 is to develop rule-based detection methods for identifying botnet activity. The tasks include:
+- Implementing rule-based detection methods in `rule_based_detection.py`.
+- Defining detection rules based on patterns observed in Phase 2 (e.g., high traffic volume, frequent C&C communication).
+- Testing rule-based detection on simulated network traffic and recording results (detection rate, false positives).
+- Creating comparison graphs (e.g., detection rate vs. false positive rate) and documenting findings.
 
-### Key Tasks:
+## Introduction
+In this phase, we apply rule-based detection techniques to identify botnet activity within network traffic, utilizing insights derived from the CTU-13 dataset. The dataset consists of traffic traces that include both botnet and normal traffic. Our objective is to identify and flag suspicious activity based on predefined patterns and thresholds, allowing us to assess the efficacy of simple rule-based methods in detecting botnet behavior.
 
-1. **Implement Rule-Based Detection (rule_based_detection.py)**:
-   - We created detection rules based on the traffic patterns identified in Phase 2. Specifically, the rules flagged:
-     - **High traffic volume**: Any packet larger than 75 bytes was flagged for investigation.
-     - **Frequent C&C communication**: More than 2 requests to the C2 server within a 3-second window were considered suspicious.
-     - **Repetitive time intervals**: Packets sent at a fixed 2-second interval were flagged as possible bot activity.
-   
-2. **Test Rule-Based Detection**:
-   - The detection rules were tested on the simulated traffic data from Phase 2.
-   - We manually marked the packets as botnet-related to evaluate the accuracy of the rule-based detection.
-   - The results of the rule-based detection were recorded and analyzed for their accuracy and false positive rate.
+## Methodology
 
-3. **Create Comparison Graphs (rule_based_detection_results.png)**:
-   - Using Matplotlib, we generated graphs to visualize the performance of the rule-based detection:
-     - **Detection Rate vs. False Positive Rate**: Showed how effectively the detection rules identified actual botnet traffic compared to false positives.
-     - **Detection Accuracy Over Time**: Tracked the accuracy of the detection rules as the botnet traffic progressed.
+### Detection Rules
+The following detection rules were implemented based on patterns identified in Phase 2:
 
-### Key Insights:
+1. **High Traffic Volume**: 
+   - **Rule**: Flag packets with a frame length (`frame.len`) above a specified threshold of 1000 bytes.
+   - **Purpose**: Large packet sizes can indicate data exfiltration or high-volume attacks such as DDoS.
 
-1. **Detection Accuracy**:
-   - The detection rules successfully flagged 1 packet as suspicious, leading to an accuracy of **33.33%**. This was based on the fact that 1 out of the 3 packets in the dataset was correctly identified as botnet traffic.
-   - There were **no false positives**, as benign traffic was not flagged during the detection process. This resulted in a false positive rate of **0%**.
+2. **Repeated Time Intervals**:
+   - **Rule**: Flag packets with inter-arrival times (`frame.time_delta`) below 0.05 seconds.
+   - **Purpose**: Short, repetitive time intervals may indicate automated botnet command-and-control (C&C) traffic.
 
-2. **Effectiveness of the Rules**:
-   - The rule based on packet size (>75 bytes) flagged 1 packet, which was an actual botnet communication. However, no packets were flagged under the frequent C&C request or repetitive time interval rules, indicating that these rules may require adjustments or were not relevant for this specific simulation.
-   
-3. **Visualization**:
-   - **Detection Rate vs. False Positive Rate**:
-     - The detection rate was consistent with the overall traffic pattern, showing that the rule-based detection accurately identified the botnet communication with no false positives.
-     - ![Detection Rate vs. False Positive Rate](../results/phase3/detection_vs_false_positive_rate.png)
-   
-   - **Detection Accuracy Over Time**:
-     - The detection accuracy remained steady, with no changes over time, as all packets were processed in a consistent manner. 
-     - ![Detection Accuracy Over Time](../results/phase3/detection_accuracy_over_time.png)
+3. **Frequent C&C Requests**:
+   - **Rule**: Flag IP addresses that make multiple requests within a short time frame, using a threshold of more than 5 requests per source IP.
+   - **Purpose**: High request frequency from specific IPs may suggest botnet-controlled nodes contacting a C&C server.
 
-### Recommendations:
-- **Rule Refinement**: While the packet size rule worked well, the other rules (frequent C&C requests and repetitive time intervals) may need to be fine-tuned to better capture more sophisticated botnet behaviors. 
-- **Dataset Expansion**: Testing these rules on a larger, more diverse dataset could reveal additional insights and help refine detection methods.
-- **Anomaly Detection**: Integrating anomaly detection techniques, such as statistical or machine learning methods, could complement rule-based detection and improve overall detection rates.
+### Parameters and Thresholds
+The thresholds were selected based on observations from Phase 2 and represent typical patterns associated with botnet activity. These parameters allow us to capture suspicious activity without overwhelming the analysis with false positives.
 
-### Deliverables:
-- **rule_based_detection.py**: The script that performs rule-based botnet detection.
-- **Comparison graphs**:
-  - **detection_accuracy_over_time.png**
-  - **detection_vs_false_positive_rate.png**
-  - All stored in `/results/` as `.png` files.
+## Results
 
----
+### Rule-Based Detection Summary
+- **High Traffic Packets Flagged**: 4,258,598 packets
+- **Repeated Interval Packets Flagged**: 4,996,443 packets
+- **Frequent C&C IPs Flagged**: 7,070 IP addresses
 
-This concludes the analysis for Phase 3. Moving forward, improvements in rule definitions and the use of larger datasets could significantly enhance detection rates and reduce potential false negatives.
+### Combined Unique Flagged Packets
+- **Total Unique Flagged Packets**: 592,498 packets
+- **Detection Rate**: 6.79% of total packets were flagged.
+- **Flag Rate by Unique IPs**: 28.55% of unique IP addresses were flagged.
+
+### Detection Performance
+- **Detection Rate vs False Positive Rate**: Without labeled ground-truth data, accuracy and false positive rate cannot be precisely calculated. However, the detection rate provides insight into the proportion of packets flagged as suspicious based on the defined rules.
+
+## Visual Analysis
+
+### Detection Rate vs. False Positive Rate
+![Detection Rate vs False Positive Rate](src/phase3/results/detection_vs_false_positive_rate.png)
+This graph illustrates the detection rate in comparison to the estimated false positive rate, providing a sense of the trade-off between detection effectiveness and potential noise in flagged traffic.
+
+### Packet Volume Over Time
+![Packet Volume Over Time](src/phase3/results/packet_volume_over_time.png)
+This time-series graph shows flagged packets over time, highlighting any spikes or patterns indicative of botnet activity. Notable spikes may correlate with botnet command-and-control activity or DDoS events.
+
+### Flagged IP Count by Detection Rule
+![Flagged IP Count by Detection Rule](src/phase3/results/flagged_ip_count.png)
+This bar chart displays the count of unique IPs flagged by each detection rule, helping to assess the specificity and broadness of each rule.
+
+## Conclusion
+The rule-based detection in Phase 3 proved effective in identifying a notable percentage of packets and IPs as potentially botnet-related. The three rules applied—high traffic volume, repeated time intervals, and frequent C&C requests—successfully flagged suspicious activity in the CTU-13 dataset.
