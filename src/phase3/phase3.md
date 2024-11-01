@@ -48,15 +48,15 @@ The thresholds were selected based on observations from Phase 2 and represent ty
 ## Visual Analysis
 
 ### Detection Rate vs. False Positive Rate
-![Detection Rate vs False Positive Rate](src/phase3/results/detection_vs_false_positive_rate.png)
+![Detection Rate vs False Positive Rate](results/detection_vs_false_positive_rate.png)
 This graph illustrates the detection rate in comparison to the estimated false positive rate, providing a sense of the trade-off between detection effectiveness and potential noise in flagged traffic.
 
 ### Packet Volume Over Time
-![Packet Volume Over Time](src/phase3/results/packet_volume_over_time.png)
+![Packet Volume Over Time](results/packet_volume_over_time.png)
 This time-series graph shows flagged packets over time, highlighting any spikes or patterns indicative of botnet activity. Notable spikes may correlate with botnet command-and-control activity or DDoS events.
 
 ### Flagged IP Count by Detection Rule
-![Flagged IP Count by Detection Rule](src/phase3/results/flagged_ip_count.png)
+![Flagged IP Count by Detection Rule](results/flagged_ip_count.png)
 This bar chart displays the count of unique IPs flagged by each detection rule, helping to assess the specificity and broadness of each rule.
 
 ## Conclusion
