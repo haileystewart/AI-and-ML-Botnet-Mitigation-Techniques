@@ -6,6 +6,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import IsolationForest
 
 # Step 1: Load your dataset
 processed_data_dir = os.path.join(os.path.dirname(__file__), 'processed_data')
@@ -17,7 +20,7 @@ for dataset_id in range(1, 14):
             if filename.endswith('.csv.gz'):
                 file_path = os.path.join(dataset_dir, filename)
                 try:
-                    df = pd.read_csv(file_path, usecols=['ip.src', 'ip.dst', 'frame.len', 'frame.time_delta'], compression='gzip')
+                    df = pd.read_csv(file_path, usecols=['frame.len'], compression='gzip')
                     dataframes.append(df)
                 except pd.errors.ParserError as e:
                     print(f"Warning: Could not parse {file_path} due to {e}")
@@ -67,3 +70,27 @@ print("Precision:", precision)
 print("Recall:", recall)
 print("F1 Score:", f1)
 print("Confusion Matrix:\n", conf)
+
+# Preprocess: Standardize the features for better clustering performance
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(traffic_data)
+
+# Initialize and fit the DBSCAN model
+dbscan_model = DBSCAN(eps=0.5, min_samples=5)
+dbscan_labels = dbscan_model.fit_predict(X_scaled)
+
+# Add the labels back to the dataset for analysis
+traffic_data["Cluster"] = dbscan_labels
+
+# Print a summary of clusters
+print(traffic_data["Cluster"].value_counts())
+
+# Initialize and fit the Isolation Forest model
+iso_forest = IsolationForest(n_estimators=100, contamination=0.1, random_state=42)
+outlier_labels = iso_forest.fit_predict(traffic_data)
+
+# Add the labels back to the dataset for analysis
+traffic_data["Cluster"] = outlier_labels  # -1 indicates an anomaly, 1 indicates normal
+
+# Print a summary of anomalies
+print(traffic_data["Cluster"].value_counts())
