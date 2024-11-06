@@ -90,7 +90,7 @@ iso_forest = IsolationForest(n_estimators=100, contamination=0.1, random_state=4
 outlier_labels = iso_forest.fit_predict(traffic_data)
 
 # Add the labels back to the dataset for analysis
-traffic_data["Cluster"] = outlier_labels  # -1 indicates an anomaly, 1 indicates normal
+traffic_data["Forest"] = outlier_labels  # -1 indicates an anomaly, 1 indicates normal
 
 # Print a summary of anomalies
-print(traffic_data["Cluster"].value_counts())
+print(traffic_data["Forest"].value_counts())
