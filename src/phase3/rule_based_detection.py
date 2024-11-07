@@ -41,6 +41,8 @@ def detect_frequent_cnc_requests(df, request_threshold):
     cnc_requests = df.groupby('ip.src').size().reset_index(name='request_count')
     return cnc_requests[cnc_requests['request_count'] > request_threshold]
 
+
+
 # Load and process all .csv.gz files in each dataset subdirectory (1 to 13)
 dataframes = []
 for dataset_id in range(1, 14):
@@ -86,7 +88,35 @@ print(f"Total Flagged Packets (Unique): {len(flagged_packets)}")
 print(f"Detection Rate (Flagged/Total Packets): {detection_rate:.2f}%")
 print(f"Flag Rate by Unique IPs (Unique Flagged IPs/Total Unique IPs): {flag_rate_by_ips:.2f}%")
 
-# Step 3: Generate Comparison Graphs
+# # Step 3: Label Traffic as Malicious or Benign
+def label_traffic(high_traffic_packets, repeated_interval_packets, frequent_cnc_packets):
+    # Label flagged packets as 'malicious'
+    high_traffic_packets['label'] = 'malicious'
+    repeated_interval_packets['label'] = 'malicious'
+    frequent_cnc_packets['label'] = 'malicious'
+    
+    # Combine flagged packets and label them
+    labeled_traffic = pd.concat([high_traffic_packets, repeated_interval_packets, frequent_cnc_packets]).drop_duplicates()
+
+    # Label the rest of the traffic (those not flagged by any rule) as 'benign'
+    benign_traffic = traffic_data[~traffic_data['ip.src'].isin(labeled_traffic['ip.src'])]
+    benign_traffic['label'] = 'benign'
+
+    # Combine labeled and benign traffic
+    final_labeled_traffic = pd.concat([labeled_traffic, benign_traffic])
+
+    return final_labeled_traffic
+
+# Apply labeling
+labeled_traffic_data = label_traffic(high_traffic_packets, repeated_interval_packets, frequent_cnc_packets)
+
+# Save the labeled data
+labeled_traffic_data.to_csv(os.path.join(results_dir, 'labeled_traffic_data.csv'), index=False)
+
+print(f"Labeled traffic data saved as 'labeled_traffic_data.csv'")
+
+
+# Step 4: Generate Comparison Graphs
 
 # 1. Detection Rate vs. False Positive Rate (Proxy)
 false_positive_rate = detection_rate * 0.1  # Example assumption
