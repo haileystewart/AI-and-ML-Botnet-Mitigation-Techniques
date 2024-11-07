@@ -72,3 +72,6 @@ def display_analytics(model, accuracy, precision, recall, f1, conf):
 
 display_analytics("RF", accuracy_rf, precision_rf, recall_rf, f1_rf, conf_rf)
 display_analytics("NB", accuracy_nb, precision_nb, recall_nb, f1_nb, conf_nb)
+
+def visualize_metrics():
+    pass
