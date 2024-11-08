@@ -53,38 +53,19 @@ nb_model.fit(X_train, y_train)
 y_pred_rf = rf_model.predict(X_test)
 y_pred_nb = nb_model.predict(X_test)
 
-def get_analyitics(confirmed, predictions):
-    accuracy = dict()
-    precision = dict()
-    recall = dict()
-    f1 = dict()
-    conf = dict()
-
-    accuracy= accuracy_score(confirmed, predictions)
-    precision = precision_score(confirmed, predictions, pos_label="malicious")
-    recall = recall_score(confirmed, predictions, pos_label="malicious")
-    f1 = f1_score(confirmed, predictions, pos_label="malicious")
+def get_analyitics(model, confirmed, predictions):
+    metrics = {
+        "Model": model,
+        "Accuracy": accuracy_score(confirmed, predictions),
+        "Precision": precision_score(confirmed, predictions, pos_label="malicious"),
+        "Recall": recall_score(confirmed, predictions, pos_label="malicious"),
+        "F1 Score": f1_score(confirmed, predictions, pos_label="malicious")
+    }
     conf = confusion_matrix(confirmed, predictions)
-    return accuracy, precision, recall, f1, conf
+    return metrics, conf
 
-accuracy_rf, precision_rf, recall_rf, f1_rf, conf_rf = get_analyitics(y_test, y_pred_rf)
-accuracy_nb, precision_nb, recall_nb, f1_nb, conf_nb = get_analyitics(y_test, y_pred_nb)
-
-metrics_rf = {
-    "Model": "Random Forest",
-    "Accuracy": accuracy_rf,
-    "Precision": precision_rf,
-    "Recall": recall_rf,
-    "F1 Score": f1_rf
-}
-
-metrics_nb = {
-    "Model": "Naive Bayes",
-    "Accuracy": accuracy_nb,
-    "Precision": precision_nb,
-    "Recall": recall_nb,
-    "F1 Score": f1_nb
-}
+metrics_rf, conf_rf = get_analyitics("Random Forest", y_test, y_pred_rf)
+metrics_nb, conf_nb = get_analyitics("Naive Bayes", y_test, y_pred_nb)
 
 def display_analytics(model, metrics, conf):
     print("Accuracy for %s: %f" % (model, metrics["Accuracy"]))
