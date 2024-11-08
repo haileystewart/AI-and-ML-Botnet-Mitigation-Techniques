@@ -1,4 +1,5 @@
 # Python script to train and evaluate machine learning models for detecting botnets (Naive Bayes, Decision Trees, etc.).
+import os
 import pandas as pd
 import socket
 import struct
@@ -6,6 +7,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import roc_curve, auc
 
 # Load your dataset
 traffic_data = pd.read_csv("labeled_traffic_data.csv")
@@ -63,15 +67,69 @@ def get_analyitics(confirmed, predictions):
 accuracy_rf, precision_rf, recall_rf, f1_rf, conf_rf = get_analyitics(y_test, y_pred_rf)
 accuracy_nb, precision_nb, recall_nb, f1_nb, conf_nb = get_analyitics(y_test, y_pred_nb)
 
-def display_analytics(model, accuracy, precision, recall, f1, conf):
-    print("Accuracy for %s: %f" % (model, accuracy))
-    print("Precision for %s: %f" % (model, precision))
-    print("Recall for %s: %f" % (model, recall))
-    print("F1 Score for %s: %f" % (model, f1))
-    print("Confusion Matrix for %s: \n%s\n" % (model, conf))
+metrics_rf = {
+    'Model': 'Random Forest',
+    'Accuracy': accuracy_rf,
+    'Precision': precision_rf,
+    'Recall': recall_rf,
+    'F1 Score': f1_rf
+}
 
-display_analytics("RF", accuracy_rf, precision_rf, recall_rf, f1_rf, conf_rf)
-display_analytics("NB", accuracy_nb, precision_nb, recall_nb, f1_nb, conf_nb)
+metrics_nb = {
+    'Model': 'Naive Bayes',
+    'Accuracy': accuracy_nb,
+    'Precision': precision_nb,
+    'Recall': recall_nb,
+    'F1 Score': f1_nb
+}
+
+def display_analytics(model, metrics, conf):
+    print("Accuracy for %s: %f" % (model, metrics["Accuracy"]))
+    print("Precision for %s: %f" % (model, metrics["Precision"]))
+    print("Recall for %s: %f" % (model, metrics["Recall"]))
+    print("F1 Score for %s: %f" % (model, metrics["F1 Score"]))
+
+    # Plot confusion matrix for Random Forest
+    plt.figure(figsize=(12, 5))
+    sns.heatmap(conf, annot=True, fmt="d", cmap="Blues", cbar=False)
+    plt.title("Confusion Matrix - %s" % model)
+    plt.xlabel("Predicted Label")
+    plt.ylabel("True Label")
+    plt.tight_layout()
+    plt.show()
+
+
+
+display_analytics("RF", metrics_rf, conf_rf)
+display_analytics("NB", metrics_nb, conf_nb)
 
 def visualize_metrics():
-    pass
+    # Get probability scores for positive class (1) from each model
+    y_prob_rf = rf_model.predict_proba(X_test)[:, 1]
+    y_prob_nb = nb_model.predict_proba(X_test)[:, 1]
+
+    # Compute ROC curve and AUC for each model
+    fpr_rf, tpr_rf, _ = roc_curve(y_test, y_prob_rf, pos_label='malicious')
+    roc_auc_rf = auc(fpr_rf, tpr_rf)
+
+    fpr_nb, tpr_nb, _ = roc_curve(y_test, y_prob_nb, pos_label='malicious')
+    roc_auc_nb = auc(fpr_nb, tpr_nb)
+
+    # Plot ROC curves
+    plt.figure(figsize=(10, 6))
+    plt.plot(fpr_rf, tpr_rf, color="blue", lw=2, label=f"Random Forest (AUC = {roc_auc_rf:.2f})")
+    plt.plot(fpr_nb, tpr_nb, color="green", lw=2, label=f"Naive Bayes (AUC = {roc_auc_nb:.2f})")
+    plt.plot([0, 1], [0, 1], color="grey", linestyle="--")  # Diagonal line for reference
+
+    plt.title("ROC Curve for Random Forest and Naive Bayes")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.legend(loc="lower right")
+    plt.show()
+
+results_dir = os.path.join(os.path.dirname(__file__), 'results')
+os.makedirs(results_dir, exist_ok=True)
+
+metrics_df = pd.DataFrame([metrics_rf, metrics_nb])
+metrics_df.to_csv(os.path.join(results_dir, 'metrics.csv'), index=False)
+visualize_metrics()
