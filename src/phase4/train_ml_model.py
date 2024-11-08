@@ -11,30 +11,34 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import roc_curve, auc
 
-# Load your dataset
 traffic_data = pd.read_csv("labeled_traffic_data.csv")
 traffic_data = traffic_data.drop(columns="request_count")
 
-# Convert IP address to integer
+'''
+There are a couple of pre-processing things we must do before
+we can work with the data properly. 
+Some of the IPs in the dataset have \ at the end of them which must be removed.
+Some of the entries are Null which must be resolved.
+'''
 def ip_to_int(ip):
     if type(ip) == str:
         ip = ip.strip().rstrip("\\")
         return struct.unpack("!I", socket.inet_aton(ip))[0]
     return ip
 
-traffic_data['ip.src'] = traffic_data['ip.src'].apply(ip_to_int)
-traffic_data['ip.dst'] = traffic_data['ip.dst'].apply(ip_to_int)
+traffic_data["ip.src"] = traffic_data["ip.src"].apply(ip_to_int)
+traffic_data["ip.dst"] = traffic_data["ip.dst"].apply(ip_to_int)
 
 fill_values = {
-    'ip.dst': 0,  # Replace NaN in 'column1' with 0
-    'frame.len': traffic_data['frame.len'].median(),  # Replace NaN in 'column2' with the median
-    'frame.time_delta': traffic_data['frame.len'].median()
+    "ip.dst": 0,  
+    "frame.len": traffic_data["frame.len"].median(),  
+    "frame.time_delta": traffic_data["frame.len"].median()
 }
 traffic_data.fillna(value=fill_values, inplace=True)
 
 # Assuming 'label' is the column for malicious/benign labels
 X = traffic_data.drop(columns="label")
-y = traffic_data['label']
+y = traffic_data["label"]
 
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=27)
@@ -50,7 +54,6 @@ y_pred_rf = rf_model.predict(X_test)
 y_pred_nb = nb_model.predict(X_test)
 
 def get_analyitics(confirmed, predictions):
-# Evaluate the model
     accuracy = dict()
     precision = dict()
     recall = dict()
@@ -58,9 +61,9 @@ def get_analyitics(confirmed, predictions):
     conf = dict()
 
     accuracy= accuracy_score(confirmed, predictions)
-    precision = precision_score(confirmed, predictions, pos_label='malicious')
-    recall = recall_score(confirmed, predictions, pos_label='malicious')
-    f1 = f1_score(confirmed, predictions, pos_label='malicious')
+    precision = precision_score(confirmed, predictions, pos_label="malicious")
+    recall = recall_score(confirmed, predictions, pos_label="malicious")
+    f1 = f1_score(confirmed, predictions, pos_label="malicious")
     conf = confusion_matrix(confirmed, predictions)
     return accuracy, precision, recall, f1, conf
 
@@ -68,19 +71,19 @@ accuracy_rf, precision_rf, recall_rf, f1_rf, conf_rf = get_analyitics(y_test, y_
 accuracy_nb, precision_nb, recall_nb, f1_nb, conf_nb = get_analyitics(y_test, y_pred_nb)
 
 metrics_rf = {
-    'Model': 'Random Forest',
-    'Accuracy': accuracy_rf,
-    'Precision': precision_rf,
-    'Recall': recall_rf,
-    'F1 Score': f1_rf
+    "Model": "Random Forest",
+    "Accuracy": accuracy_rf,
+    "Precision": precision_rf,
+    "Recall": recall_rf,
+    "F1 Score": f1_rf
 }
 
 metrics_nb = {
-    'Model': 'Naive Bayes',
-    'Accuracy': accuracy_nb,
-    'Precision': precision_nb,
-    'Recall': recall_nb,
-    'F1 Score': f1_nb
+    "Model": "Naive Bayes",
+    "Accuracy": accuracy_nb,
+    "Precision": precision_nb,
+    "Recall": recall_nb,
+    "F1 Score": f1_nb
 }
 
 def display_analytics(model, metrics, conf):
@@ -98,8 +101,6 @@ def display_analytics(model, metrics, conf):
     plt.tight_layout()
     plt.show()
 
-
-
 display_analytics("RF", metrics_rf, conf_rf)
 display_analytics("NB", metrics_nb, conf_nb)
 
@@ -109,10 +110,10 @@ def visualize_metrics():
     y_prob_nb = nb_model.predict_proba(X_test)[:, 1]
 
     # Compute ROC curve and AUC for each model
-    fpr_rf, tpr_rf, _ = roc_curve(y_test, y_prob_rf, pos_label='malicious')
+    fpr_rf, tpr_rf, _ = roc_curve(y_test, y_prob_rf, pos_label="malicious")
     roc_auc_rf = auc(fpr_rf, tpr_rf)
 
-    fpr_nb, tpr_nb, _ = roc_curve(y_test, y_prob_nb, pos_label='malicious')
+    fpr_nb, tpr_nb, _ = roc_curve(y_test, y_prob_nb, pos_label="malicious")
     roc_auc_nb = auc(fpr_nb, tpr_nb)
 
     # Plot ROC curves
@@ -120,16 +121,15 @@ def visualize_metrics():
     plt.plot(fpr_rf, tpr_rf, color="blue", lw=2, label=f"Random Forest (AUC = {roc_auc_rf:.2f})")
     plt.plot(fpr_nb, tpr_nb, color="green", lw=2, label=f"Naive Bayes (AUC = {roc_auc_nb:.2f})")
     plt.plot([0, 1], [0, 1], color="grey", linestyle="--")  # Diagonal line for reference
-
     plt.title("ROC Curve for Random Forest and Naive Bayes")
     plt.xlabel("False Positive Rate")
     plt.ylabel("True Positive Rate")
     plt.legend(loc="lower right")
     plt.show()
 
-results_dir = os.path.join(os.path.dirname(__file__), 'results')
+results_dir = os.path.join(os.path.dirname(__file__), "results")
 os.makedirs(results_dir, exist_ok=True)
 
 metrics_df = pd.DataFrame([metrics_rf, metrics_nb])
-metrics_df.to_csv(os.path.join(results_dir, 'metrics.csv'), index=False)
+metrics_df.to_csv(os.path.join(results_dir, "metrics.csv"), index=False)
 visualize_metrics()
